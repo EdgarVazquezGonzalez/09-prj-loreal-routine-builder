@@ -5,8 +5,103 @@ const chatForm = document.getElementById("chatForm");
 const chatWindow = document.getElementById("chatWindow");
 const selectedProductsList = document.getElementById("selectedProductsList");
 const generateRoutineBtn = document.getElementById("generateRoutine");
+const clearSelectionsBtn = document.getElementById("clearSelectionsBtn");
 
-let selectedProducts = [];
+
+let selectedProducts = JSON.parse(localStorage.getItem("selectedProducts")) || [];
+
+function saveSelectedProducts(){
+    localStorage.setItem("selectedProducts", JSON.stringify(selectedProducts));
+}
+
+function isProductSelected(product) {
+  return selectedProducts.some(
+    (p) => p.name === product.name && p.category === product.category
+  );
+}
+
+function removeSelectedProduct(productToRemove) {
+  selectedProducts = selectedProducts.filter(
+    (product) =>
+      !(
+        product.name === productToRemove.name &&
+        product.category === productToRemove.category
+      )
+  );
+
+  saveSelectedProducts();
+  updateSelectedProducts();
+
+  // Refresh visible cards so blue highlight stays in sync
+  const selectedCategory = categoryFilter.value;
+  if (selectedCategory) {
+    loadProducts().then((products) => {
+      const filteredProducts = products.filter(
+        (product) => product.category === selectedCategory
+      );
+      displayProducts(filteredProducts);
+    });
+  }
+}
+
+function displayProducts(products) {
+  productsContainer.innerHTML = products
+    .map(
+      (product) => `
+        <div class="product-card ${isProductSelected(product) ? "selected" : ""}">
+          <img src="${product.image}" alt="${product.name}">
+          <div class="product-info">
+            <h3>${product.name}</h3>
+            <p>${product.brand}</p>
+          </div>
+        </div>
+      `
+    )
+    .join("");
+
+  const productCards = document.querySelectorAll(".product-card");
+
+  productCards.forEach((card, index) => {
+    card.addEventListener("click", () => {
+      const clickedProduct = products[index];
+      const alreadySelected = isProductSelected(clickedProduct);
+
+      if (alreadySelected) {
+        selectedProducts = selectedProducts.filter(
+          (product) =>
+            !(
+              product.name === clickedProduct.name &&
+              product.category === clickedProduct.category
+            )
+        );
+        card.classList.remove("selected");
+      } else {
+        selectedProducts.push(clickedProduct);
+        card.classList.add("selected");
+      }
+
+      saveSelectedProducts();
+      updateSelectedProducts();
+    });
+  });
+}
+
+function clearAllSelections() {
+  selectedProducts = [];
+  saveSelectedProducts();
+  updateSelectedProducts();
+
+  const selectedCategory = categoryFilter.value;
+  if (selectedCategory) {
+    loadProducts().then((products) => {
+      const filteredProducts = products.filter(
+        (product) => product.category === selectedCategory
+      );
+      displayProducts(filteredProducts);
+    });
+  }
+}
+
 let messages = [
   {
     role: "system",
@@ -31,54 +126,40 @@ async function loadProducts() {
 function updateSelectedProducts() {
   if (selectedProducts.length === 0) {
     selectedProductsList.innerHTML = `<p>No products selected yet.</p>`;
+    if (clearSelectionsBtn) clearSelectionsBtn.style.display = "none";
     return;
   }
 
-  const names = selectedProducts.map((product) => product.name);
-  selectedProductsList.innerHTML = `<p>${names.join(", ")}</p>`;
-}
-
-
-/* Create HTML for displaying product cards */
-function displayProducts(products) {
-  productsContainer.innerHTML = products
+  selectedProductsList.innerHTML = selectedProducts
     .map(
-      (product) => `
-    <div class="product-card">
-      <img src="${product.image}" alt="${product.name}">
-      <div class="product-info">
-        <h3>${product.name}</h3>
-        <p>${product.brand}</p>
-      </div>
-    </div>
-  `
+      (product, index) => `
+        <div class="selected-product-row">
+          <span>${product.name}</span>
+          <button 
+            class="remove-selected-btn" 
+            data-index="${index}"
+            type="button"
+          >
+            ×
+          </button>
+        </div>
+      `
     )
     .join("");
 
-    // Adding selection behavior after cards are loaded
-  const productCards = document.querySelectorAll(".product-card");
+  if (clearSelectionsBtn) clearSelectionsBtn.style.display = "inline-block";
 
-    productCards.forEach((card, index) => {
-    card.addEventListener("click", () => {
-      const clickedProduct = products[index];
-      const alreadySelected = selectedProducts.some(
-        (p) => p.name === clickedProduct.name
-      );
+  const removeButtons = document.querySelectorAll(".remove-selected-btn");
 
-      if (alreadySelected) {
-        selectedProducts = selectedProducts.filter(
-          (p) => p.name !== clickedProduct.name
-        );
-        card.classList.remove("selected");
-      } else {
-        selectedProducts.push(clickedProduct);
-        card.classList.add("selected");
-      }
-
-      updateSelectedProducts();
+  removeButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const index = Number(button.dataset.index);
+      const productToRemove = selectedProducts[index];
+      removeSelectedProduct(productToRemove);
     });
   });
 }
+
 
 
 
@@ -159,3 +240,9 @@ chatForm.addEventListener("submit", async (e) => {
   await sendMessagesToChatbot();
   userInputField.value = "";
 });
+
+if (clearSelectionsBtn) {
+  clearSelectionsBtn.addEventListener("click", clearAllSelections);
+}
+
+updateSelectedProducts();
