@@ -281,3 +281,140 @@ body {
   border-radius: 8px;
   cursor: pointer;
 }
+
+
+/* Media queries */
+@media (max-width: 900px) {
+  .page-wrapper {
+    width: 94%;
+  }
+
+  .products-grid {
+    gap: 16px;
+  }
+
+  .product-card {
+    flex: 0 1 calc(50% - 8px);
+    min-height: 140px;
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .product-card img {
+    width: 90px;
+    height: 90px;
+  }
+
+  .product-card h3 {
+    font-size: 15px;
+  }
+
+  .product-card p {
+    font-size: 13px;
+  }
+
+  .chatbox {
+    padding: 20px;
+  }
+
+  .chat-window {
+    height: 200px;
+    font-size: 16px;
+    padding: 16px;
+  }
+
+  .chat-form input {
+    font-size: 16px;
+  }
+}
+
+/* phones */
+@media (max-width: 600px) {
+  .site-header {
+    padding-top: 30px;
+  }
+
+  .logo {
+    width: 180px;
+  }
+
+  .site-title {
+    font-size: 18px;
+  }
+
+  .search-section select {
+    padding: 14px;
+    font-size: 16px;
+  }
+
+  .products-grid {
+    gap: 12px;
+  }
+
+  .product-card {
+    flex: 0 1 100%;
+    min-height: 120px;
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .product-card img {
+    width: 75px;
+    height: 75px;
+  }
+
+  .product-card .product-info {
+    min-height: auto;
+  }
+
+  .product-card h3 {
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+
+  .product-card p {
+    font-size: 12px;
+  }
+
+  .selected-products {
+    padding: 16px;
+  }
+
+  .chatbox {
+    margin: 30px 0;
+    padding: 16px;
+  }
+
+  .chatbox h2,
+  .selected-products h2 {
+    font-size: 18px;
+  }
+
+  .chat-window {
+    height: 160px;
+    font-size: 15px;
+    padding: 14px;
+    margin-bottom: 14px;
+  }
+
+  .chat-form {
+    gap: 8px;
+  }
+
+  .chat-form input {
+    font-size: 15px;
+    padding: 10px;
+  }
+
+  .chat-form button {
+    width: 42px;
+    height: 42px;
+    font-size: 16px;
+    padding: 10px;
+  }
+
+  .generate-btn {
+    font-size: 16px;
+    padding: 14px;
+  }
+}
